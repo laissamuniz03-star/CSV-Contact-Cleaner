@@ -9,28 +9,29 @@ def corrigir_numero(numero):
     if not numero:
         return numero
 
-    # pega apenas o primeiro número se houver ::: 
+    # pega apenas o primeiro número se houver :::
     numero = numero.split(":::")[0]
 
-    # remove qualquer caractere que não seja número
+    # remove tudo que não for número
     numero = re.sub(r"\D", "", numero)
 
-    # se tiver 8 dígitos → sem DDD
+    # remove código do Brasil
+    if numero.startswith("55"):
+        numero = numero[2:]
+
+    # sem DDD (8 dígitos)
     if len(numero) == 8:
         numero = "859" + numero
 
-    # se tiver 9 dígitos → sem DDD mas já tem 9
+    # sem DDD mas já com 9
     elif len(numero) == 9:
         numero = "85" + numero
 
-    # se tiver 10 dígitos → tem DDD mas falta o 9
+    # tem DDD mas falta 9
     elif len(numero) == 10:
         numero = numero[:2] + "9" + numero[2:]
 
-    # se tiver 11 dígitos → já está correto
-    elif len(numero) == 11:
-        pass
-
+    # se tiver 11 já está correto
     return numero
 
 
@@ -39,14 +40,13 @@ with open(entrada, "r", encoding="utf-8") as arquivo:
     campos = leitor.fieldnames
     linhas = list(leitor)
 
-
 for linha in linhas:
     linha["Phone 1 - Value"] = corrigir_numero(linha["Phone 1 - Value"])
-
 
 with open(saida, "w", newline="", encoding="utf-8") as arquivo:
     escritor = csv.DictWriter(arquivo, fieldnames=campos)
     escritor.writeheader()
     escritor.writerows(linhas)
 
-print("CSV corrigido mantendo padrão do Google Contatos!")
+print("Contatos corrigidos e prontos para importar no Google!")
+
